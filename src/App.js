@@ -20,7 +20,7 @@ class App extends Component {
   componentDidMount() {
     this.db.collection('ideas').onSnapshot(snapshop => {
       let changes = snapshop.docChanges();
-      changes.map(change => {
+      changes.forEach(change => {
         if (change.type === 'added') {
           let doc = {
             ...change.doc.data(),
@@ -30,7 +30,7 @@ class App extends Component {
             ideas: [doc, ...this.state.ideas]
           });
         }
-      })
+      });
     });
   }
 
@@ -47,12 +47,23 @@ class App extends Component {
     console.log('ideaRef', ideaRef);
   };
 
+  handleIdeaDelete = (idea) => {
+    let ideas = [...this.state.ideas];
+    ideas = ideas.filter(obj => obj.id !== idea.id);
+    this.setState({
+      ideas
+    });
+    this.db.collection('ideas').doc(idea.id).delete().catch(error => {
+      console.log(error);
+    });
+  }
+
   render() {
     return (
       <div className="App">
         <h1>Brainstorm app!</h1>
         <AddIdea addIdea={this.handleAddIdea} />
-        <IdeaList ideas={this.state.ideas} />
+        <IdeaList ideas={this.state.ideas} onDelete={(idea) => this.handleIdeaDelete(idea)} />
       </div>
     );
   }

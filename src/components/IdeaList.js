@@ -12,6 +12,7 @@ const IdeaList = (props) => {
             <div key={idea.id} className='idea'>
               <div className='idea-title'>{idea.title}</div>
               <div>{idea.details}</div>
+              <div className='tools'><button onClick={() => {props.onDelete(idea)}}>suppr</button></div>
             </div>
             )
           })
