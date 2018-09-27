@@ -2,14 +2,35 @@ import React, { Component } from 'react';
 import './App.css';
 import AddIdea from './components/AddIdea';
 import firebase from './services/firebase';
+import IdeaList from './components/IdeaList';
 
 class App extends Component {
+  state = {
+    ideas: []
+  }
 
   constructor (props) {
     super(props);
     this.db = firebase.firestore();
     this.db.settings({
       timestampsInSnapshots: true
+    });
+  }
+
+  componentDidMount() {
+    this.db.collection('ideas').onSnapshot(snapshop => {
+      let changes = snapshop.docChanges();
+      changes.map(change => {
+        if (change.type === 'added') {
+          let doc = {
+            ...change.doc.data(),
+            id: change.doc.id
+          }
+          this.setState({
+            ideas: [doc, ...this.state.ideas]
+          });
+        }
+      })
     });
   }
 
@@ -31,6 +52,7 @@ class App extends Component {
       <div className="App">
         <h1>Brainstorm app!</h1>
         <AddIdea addIdea={this.handleAddIdea} />
+        <IdeaList ideas={this.state.ideas} />
       </div>
     );
   }
